@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
-import client from './client';
+import clientF from './client';
+var client = clientF();
 
 export class UserApi extends Component {
-    getInitialState() {
+    constructor(props) {
+        super(props);
         this.state = { users: []};
     }
 
     componentDidMount() {
         client({method: 'GET', path: '/api/users'}).done(response => {
+            console.log(response)
             this.setState({users: response.entity._embedded.users});
         });
     }
@@ -21,15 +24,17 @@ export class UserApi extends Component {
 
 export class UsersList extends Component {
     render() {
-        var employees = this.props.users.map(user =>
+        var users = this.props.users.map(user =>
             <User key={user._links.self.href} user={user}/>
         );
         return (
             <table>
+                <tbody>
                 <tr>
                     <th>Email</th>
                 </tr>
                 {users}
+                </tbody>
             </table>
         )
     }
