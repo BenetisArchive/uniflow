@@ -1,16 +1,37 @@
 import React, { Component } from 'react';
 import clientF from './client';
 var client = clientF();
+import follow from './follow';
 
 export class UserApi extends Component {
     constructor(props) {
         super(props);
         this.state = { users: []};
+        this.state.pageSize = 2;
     }
 
     componentDidMount() {
-        client({method: 'GET', path: '/api/users'}).done(response => {
-            this.setState({users: response.entity._embedded.users});
+        this.loadFromServer(this.state.pageSize);
+    }
+
+    loadFromServer(pageSize) {
+        follow(client, [
+            {rel: 'users', params: {size: pageSize}}]
+        ).then(userCollection => {
+            return client({
+                method: 'GET',
+                path: userCollection.entity._links.profile.href,
+                headers: {'Accept': 'application/schema+json'}
+            }).then(schema => {
+                this.schema = schema.entity;
+                return userCollection;
+            });
+        }).done(userCollection => {
+            this.setState({
+                users: userCollection.entity._embedded.users,
+                attributes: Object.keys(this.schema.properties),
+                pageSize: pageSize,
+                links: userCollection.entity._links});
         });
     }
 

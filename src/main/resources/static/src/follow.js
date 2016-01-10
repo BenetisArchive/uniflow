@@ -1,7 +1,12 @@
-export default function follow(api, rootPath, relArray) {
+/**
+ * The first argument to the follow() function is the client object used to make REST calls.
+ * The second argument is an array of relationships to navigate along.
+ Each one can be a string or an object.
+ */
+export default function follow(api, relArray) {
         var root = api({
             method: 'GET',
-            path: rootPath
+            path: '/api/'
         });
 
         return relArray.reduce(function (root, arrayItem) {
