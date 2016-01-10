@@ -10,7 +10,6 @@ export class UserApi extends Component {
 
     componentDidMount() {
         client({method: 'GET', path: '/api/users'}).done(response => {
-            console.log(response)
             this.setState({users: response.entity._embedded.users});
         });
     }
