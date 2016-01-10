@@ -5,8 +5,12 @@ define(function(require) {
 
 	return interceptor({
 		request: function (request /*, config, meta */) {
+            console.log(request.path)
+            if(request.path.indexOf('/') === 0) {
+                request.path = 'http://localhost:8080' + request.path;
+            }
+            console.log(request.path)
             //bad but oh well
-            request.path = "http://localhost:8080" + request.path;
 			/* If the URI is a URI Template per RFC 6570 (http://tools.ietf.org/html/rfc6570), trim out the template part */
 			if (request.path.indexOf('{') === -1) {
 				return request;
