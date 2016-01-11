@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import clientF from './client';
 var client = clientF();
 import follow from './follow';
@@ -7,8 +8,7 @@ export class UserApi extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { attributes: [], pageSize: 2, links: {}};
-        this.state.users = [];
+        this.state = { users: [], attributes: [], pageSize: 2, links: {}};
     }
 
     componentDidMount() {
@@ -92,11 +92,11 @@ export class UserApi extends Component {
 export class UsersList extends Component {
     handleInput(e) {
         e.preventDefault();
-        var pageSize = React.findDOMNode(this.refs.pageSize).value;
+        var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
         if (/^[0-9]+$/.test(pageSize)) {
             this.props.updatePageSize(pageSize);
         } else {
-            React.findDOMNode(this.refs.pageSize).value =
+            ReactDOM.findDOMNode(this.refs.pageSize).value =
                 pageSize.substring(0, pageSize.length - 1);
         }
     }
@@ -175,18 +175,17 @@ export class App extends Component {
 }
 
 export class CreateDialog extends Component {
-
     handleSubmit(e) {
         e.preventDefault();
         var newUser = {};
         this.props.attributes.forEach(attribute => {
-            newUser[attribute] = React.findDOMNode(this.refs[attribute]).value.trim();
+            newUser[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
         });
         this.props.onCreate(newUser);
 
         // clear out the dialog's inputs
         this.props.attributes.forEach(attribute => {
-            React.findDOMNode(this.refs[attribute]).value = '';
+            ReactDOM.findDOMNode(this.refs[attribute]).value = '';
         });
 
         // Navigate away from the dialog to hide it.
@@ -211,7 +210,7 @@ export class CreateDialog extends Component {
 
                         <form>
                             {inputs}
-                            <button onClick={this.handleSubmit}>Create</button>
+                            <button onClick={this.handleSubmit.bind(this)}>Create</button>
                         </form>
                     </div>
                 </div>
