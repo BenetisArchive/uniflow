@@ -37,7 +37,8 @@ export class UserApi extends Component {
     }
 
     onCreate(newUser) {
-        follow(client, ['users']).then(userCollection => {
+        follow(client, ['users'])
+        .then(userCollection => {
             return client({
                 method: 'POST',
                 path: userCollection.entity._links.self.href,
@@ -45,8 +46,8 @@ export class UserApi extends Component {
                 headers: {'Content-Type': 'application/json'}
             })
         }).then(response => {
-            return follow(client, root, [
-                {rel: 'users', params: {'size': this.state.pageSize}}]);
+            return follow(client, [
+                {rel: 'users', params: {size: this.pageSize}}]);
         }).done(response => {
             this.onNavigate(response.entity._links.last.href);
         });
@@ -77,13 +78,13 @@ export class UserApi extends Component {
     render() {
         return (
             <div>
-                <CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
+                <CreateDialog attributes={this.state.attributes} onCreate={this.onCreate.bind(this)}/>
                 <UsersList users={this.state.users}
                            links={this.state.links}
                            pageSize={this.state.pageSize}
                            onNavigate={this.onNavigate}
-                           onDelete={this.onDelete}
-                           updatePageSize={this.updatePageSize}/>
+                           onDelete={this.onDelete.bind(this)}
+                           updatePageSize={this.updatePageSize.bind(this)}/>
             </div>
         );
     }
@@ -118,7 +119,7 @@ export class UsersList extends Component {
     }
     render() {
         var users = this.props.users.map(user =>
-            <User key={user._links.self.href} user={user}/>
+            <User key={user._links.self.href} user={user} onDelete={this.props.onDelete}/>
         );
 
         var navLinks = [];
@@ -149,7 +150,7 @@ export class UsersList extends Component {
 }
 
 export class User extends Component {
-    handleDelete() {
+    handleDelete(e) {
         this.props.onDelete(this.props.user);
     }
     render() {
@@ -157,7 +158,7 @@ export class User extends Component {
             <tr>
                 <td>{this.props.user.email}</td>
                 <td>
-                    <button onClick={this.handleDelete}>Delete</button>
+                    <button onClick={this.handleDelete.bind(this)}>Delete</button>
                 </td>
             </tr>
         )
