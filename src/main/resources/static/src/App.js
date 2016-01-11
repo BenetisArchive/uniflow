@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import clientF from './client';
 var client = clientF();
 import follow from './follow';
+import '../main.css';
 
 export class UserApi extends Component {
 
