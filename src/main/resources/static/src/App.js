@@ -8,7 +8,7 @@ export class UserApi extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { users: [], attributes: [], pageSize: 2, links: {}};
+        this.state = { users: [], attributes: [], pageSize: 10, links: {}};
     }
 
     componentDidMount() {
@@ -47,8 +47,9 @@ export class UserApi extends Component {
             })
         }).then(response => {
             return follow(client, [
-                {rel: 'users', params: {size: this.pageSize}}]);
+                {rel: 'users', params: {size: this.state.pageSize}}]);
         }).done(response => {
+            console.log(response.entity._links)
             this.onNavigate(response.entity._links.last.href);
         });
     }
