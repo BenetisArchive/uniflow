@@ -9,7 +9,7 @@ export class UserApi extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { users: [], attributes: [], pageSize: 3, links: {}};
+        this.state = { users: [], attributes: [], pageSize: 5, links: {}};
     }
 
     componentDidMount() {
