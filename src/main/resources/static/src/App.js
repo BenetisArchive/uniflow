@@ -9,7 +9,7 @@ export class UserApi extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { users: [], attributes: [], pageSize: 10, links: {}};
+        this.state = { users: [], attributes: [], pageSize: 1, links: {}};
     }
 
     componentDidMount() {
@@ -34,6 +34,7 @@ export class UserApi extends Component {
                 attributes: Object.keys(this.schema.properties),
                 pageSize: pageSize,
                 links: userCollection.entity._links});
+            this.forceUpdate(); //some kind of rare optimization -https://github.com/facebook/react/issues/4067
         });
     }
 
@@ -50,7 +51,6 @@ export class UserApi extends Component {
             return follow(client, [
                 {rel: 'users', params: {size: this.state.pageSize}}]);
         }).done(response => {
-            console.log(response.entity._links)
             this.onNavigate(response.entity._links.last.href);
         });
     }
@@ -126,27 +126,32 @@ export class UsersList extends Component {
 
         var navLinks = [];
         if ("first" in this.props.links) {
-            navLinks.push(<button key="first" onClick={this.handleNavFirst}>&lt;&lt;</button>);
+            navLinks.push(<button key="first" onClick={this.handleNavFirst.bind(this)}>&lt;&lt;</button>);
         }
         if ("prev" in this.props.links) {
-            navLinks.push(<button key="prev" onClick={this.handleNavPrev}>&lt;</button>);
+            navLinks.push(<button key="prev" onClick={this.handleNavPrev.bind(this)}>&lt;</button>);
         }
         if ("next" in this.props.links) {
-            navLinks.push(<button key="next" onClick={this.handleNavNext}>&gt;</button>);
+            navLinks.push(<button key="next" onClick={this.handleNavNext.bind(this)}>&gt;</button>);
         }
         if ("last" in this.props.links) {
-            navLinks.push(<button key="last" onClick={this.handleNavLast}>&gt;&gt;</button>);
+            navLinks.push(<button key="last" onClick={this.handleNavLast.bind(this)}>&gt;&gt;</button>);
         }
         return (
-            <table>
-                <tbody>
-                <tr>
-                    <th>Email</th>
-                    <th>Delete</th>
-                </tr>
-                {users}
-                </tbody>
-            </table>
+            <div>
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>Email</th>
+                        <th>Delete</th>
+                    </tr>
+                    {users}
+                    </tbody>
+                </table>
+                <div>
+                    {navLinks}
+                </div>
+            </div>
         )
     }
 }
