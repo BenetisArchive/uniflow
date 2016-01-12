@@ -27,6 +27,7 @@ export class UserApi extends Component {
                 headers: {'Accept': 'application/schema+json'}
             }).then(schema => {
                 this.schema = schema.entity;
+                this.links = userCollection.entity._links;
                 return userCollection;
             });
         }).then(userCollection => {
@@ -42,7 +43,8 @@ export class UserApi extends Component {
             this.setState({
                 users: users,
                 attributes: Object.keys(this.schema.properties),
-                pageSize: pageSize
+                pageSize: pageSize,
+                links: this.links
             });
             this.forceUpdate(); //some kind of rare optimization -https://github.com/facebook/react/issues/4067
         });
@@ -65,12 +67,26 @@ export class UserApi extends Component {
         });
     }
     onNavigate(navUri) {
-        client({method: 'GET', path: navUri}).done(userCollection => {
+        client({
+            method: 'GET',
+            path: navUri
+        }).then(userCollection => {
+            this.links = userCollection.entity._links;
+
+            return userCollection.entity._embedded.users.map(user =>
+                client({
+                    method: 'GET',
+                    path: user._links.self.href
+                })
+            );
+        }).then(userPromises => {
+            return when.all(userPromises);
+        }).done(users => {
             this.setState({
-                users: userCollection.entity._embedded.users,
-                attributes: this.state.attributes,
+                users: users,
+                attributes: Object.keys(this.schema.properties),
                 pageSize: this.state.pageSize,
-                links: userCollection.entity._links
+                links: this.links
             });
         });
     }
@@ -151,13 +167,13 @@ export class UsersList extends Component {
         this.props.onNavigate(this.props.links.last.href);
     }
     render() {
-        var users = this.props.users.map(user =>
-            <User key={user.entity._links.self.href}
-                  user={user}
-                  attributes={this.props.attributes}
-                  onUpdate={this.props.onUpdate}
-                  onDelete={this.props.onDelete}/>
-        );
+        var users = this.props.users.map(function(user){
+            return <User key={user.entity._links.self.href}
+                    user={user}
+                    attributes={this.props.attributes}
+                    onUpdate={this.props.onUpdate}
+                    onDelete={this.props.onDelete}/>
+        }.bind(this));
 
         var navLinks = [];
         if ("first" in this.props.links) {
@@ -197,7 +213,6 @@ export class User extends Component {
         this.props.onDelete(this.props.user);
     }
     render() {
-        console.log(this.props)
         return (
             <tr>
                 <td>{this.props.user.entity.email}</td>
