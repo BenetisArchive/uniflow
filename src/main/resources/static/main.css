@@ -12,11 +12,9 @@ td, th {
     text-align: left;
 }
 
-/*Classes for creating dialogs*/
-
 .modalDialog {
     position: fixed;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     top: 0;
     right: 0;
     bottom: 0;
@@ -24,10 +22,8 @@ td, th {
     background: rgba(0,0,0,0.8);
     z-index: 99999;
     opacity:0;
-    -webkit-transition: opacity 400ms ease-in;
-    -moz-transition: opacity 400ms ease-in;
-    transition: opacity 400ms ease-in;
     pointer-events: none;
+    color: white;
 }
 
 .modalDialog:target {
@@ -36,15 +32,11 @@ td, th {
 }
 
 .modalDialog > div {
-    width: 400px;
+    width: 500px;
     position: relative;
     margin: 10% auto;
     padding: 5px 20px 13px 20px;
-    border-radius: 10px;
-    background: #fff;
-    background: -moz-linear-gradient(#fff, #999);
-    background: -webkit-linear-gradient(#fff, #999);
-    background: -o-linear-gradient(#fff, #999);
+    background: #1abc9c;
 }
 
 .close {
