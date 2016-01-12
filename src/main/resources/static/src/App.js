@@ -197,9 +197,10 @@ export class User extends Component {
         this.props.onDelete(this.props.user);
     }
     render() {
+        console.log(this.props)
         return (
             <tr>
-                <td>{this.props.user.email}</td>
+                <td>{this.props.user.entity.email}</td>
                 <td>
                     <UpdateDialog user={this.props.user}
                                   attributes={this.props.attributes}
