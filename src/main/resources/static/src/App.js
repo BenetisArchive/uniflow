@@ -9,7 +9,7 @@ export class UserApi extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { users: [], attributes: [], pageSize: 1, links: {}};
+        this.state = { users: [], attributes: [], pageSize: 3, links: {}};
     }
 
     componentDidMount() {
@@ -84,7 +84,7 @@ export class UserApi extends Component {
                 <UsersList users={this.state.users}
                            links={this.state.links}
                            pageSize={this.state.pageSize}
-                           onNavigate={this.onNavigate}
+                           onNavigate={this.onNavigate.bind(this)}
                            onDelete={this.onDelete.bind(this)}
                            updatePageSize={this.updatePageSize.bind(this)}/>
             </div>
