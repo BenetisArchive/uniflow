@@ -4,6 +4,7 @@ import clientF from './client';
 var client = clientF();
 import follow from './follow';
 import '../main.css';
+import when from 'when';
 
 export class UserApi extends Component {
 
@@ -37,12 +38,12 @@ export class UserApi extends Component {
             );
         }).then(usersPromises => {
             return when.all(usersPromises);
-        }).done(userCollection => {
+        }).done(users => {
             this.setState({
-                users: userCollection.entity._embedded.users,
+                users: users,
                 attributes: Object.keys(this.schema.properties),
-                pageSize: pageSize,
-                links: userCollection.entity._links});
+                pageSize: pageSize
+            });
             this.forceUpdate(); //some kind of rare optimization -https://github.com/facebook/react/issues/4067
         });
     }
@@ -80,6 +81,25 @@ export class UserApi extends Component {
         });
     }
 
+    onUpdate(user, updatedUsers) {
+        client({
+            method: 'PUT',
+            path: user.entity._links.self.href,
+            entity: updatedUsers,
+            headers: {
+                'Content-Type': 'application/json',
+                'If-Match': user.headers.Etag
+            }
+        }).done(response => {
+            this.loadFromServer(this.state.pageSize);
+        }, response => {
+            if (response.status.code === 412) {
+                alert('DENIED: Unable to update ' +
+                    user.entity._links.self.href + '. Your copy is stale.');
+            }
+        });
+    }
+
     updatePageSize(pageSize) {
         if (pageSize !== this.state.pageSize) {
             this.loadFromServer(pageSize);
@@ -93,8 +113,10 @@ export class UserApi extends Component {
                 <UsersList users={this.state.users}
                            links={this.state.links}
                            pageSize={this.state.pageSize}
+                           attributes={this.state.attributes}
                            onNavigate={this.onNavigate.bind(this)}
                            onDelete={this.onDelete.bind(this)}
+                           onUpdate={this.onUpdate.bind(this)}
                            updatePageSize={this.updatePageSize.bind(this)}/>
             </div>
         );
@@ -130,7 +152,11 @@ export class UsersList extends Component {
     }
     render() {
         var users = this.props.users.map(user =>
-            <User key={user._links.self.href} user={user} onDelete={this.props.onDelete}/>
+            <User key={user.entity._links.self.href}
+                  user={user}
+                  attributes={this.props.attributes}
+                  onUpdate={this.props.onUpdate}
+                  onDelete={this.props.onDelete}/>
         );
 
         var navLinks = [];
@@ -152,6 +178,7 @@ export class UsersList extends Component {
                     <tbody>
                     <tr>
                         <th>Email</th>
+                        <th>Update</th>
                         <th>Delete</th>
                     </tr>
                     {users}
@@ -173,6 +200,11 @@ export class User extends Component {
         return (
             <tr>
                 <td>{this.props.user.email}</td>
+                <td>
+                    <UpdateDialog user={this.props.user}
+                                  attributes={this.props.attributes}
+                                  onUpdate={this.props.onUpdate}/>
+                </td>
                 <td>
                     <button onClick={this.handleDelete.bind(this)}>Delete</button>
                 </td>
@@ -270,7 +302,7 @@ export class UpdateDialog extends Component {
 
                         <form>
                             {inputs}
-                            <button onClick={this.handleSubmit}>Update</button>
+                            <button onClick={this.handleSubmit.bind(this)}>Update</button>
                         </form>
                     </div>
                 </div>
