@@ -213,6 +213,7 @@ export class User extends Component {
         this.props.onDelete(this.props.user);
     }
     render() {
+        console.log(this.props.user)
         return (
             <tr>
                 <td>{this.props.user.entity.email}</td>

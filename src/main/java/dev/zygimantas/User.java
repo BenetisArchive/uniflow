@@ -12,12 +12,15 @@ import javax.persistence.Version;
 @Entity
 public class User {
 
-    private @Id
+    @Id
     @GeneratedValue
-    Long id;
+    private Long id;
+
     private String email;
 
-    private @Version @JsonIgnore Long version;
+    @Version
+    @JsonIgnore
+    private Long version;
 
     private User() {}
 
