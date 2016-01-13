@@ -10,7 +10,7 @@ export class UserApi extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { users: [], attributes: [], pageSize: 5, links: {}};
+        this.state = { users: [], attributes: [], pageSize: 10, links: {}};
     }
 
     componentDidMount() {
@@ -63,7 +63,11 @@ export class UserApi extends Component {
             return follow(client, [
                 {rel: 'users', params: {size: this.state.pageSize}}]);
         }).done(response => {
-            this.onNavigate(response.entity._links.last.href);
+            if(response.entity._links.last) {
+                this.onNavigate(response.entity._links.last.href);
+            } else {
+                this.onNavigate(response.entity._links.self.href);
+            }
         });
     }
     onNavigate(navUri) {
@@ -92,7 +96,8 @@ export class UserApi extends Component {
     }
 
     onDelete(user) {
-        client({method: 'DELETE', path: user._links.self.href}).done(response => {
+        console.log(user)
+        client({method: 'DELETE', path: user.entity._links.self.href}).done(response => {
             this.loadFromServer(this.state.pageSize);
         });
     }
@@ -213,7 +218,6 @@ export class User extends Component {
         this.props.onDelete(this.props.user);
     }
     render() {
-        console.log(this.props.user)
         return (
             <tr>
                 <td>{this.props.user.entity.email}</td>
